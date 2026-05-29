@@ -1,0 +1,19 @@
+#!/bin/bash
+### This script is called before the user installs the application.
+# 安装前：检查 dep_apps 等
+
+# 检查是否为 x86_64 架构
+ARCH=$(uname -m)
+if [ "$ARCH" != "x86_64" ]; then
+  echo "该应用仅支持 x86_64 架构，当前架构为 ${ARCH}" >"${TRIM_TEMP_LOGFILE}"
+  exit 1
+fi
+
+# 检查 uname -r 是否存在
+KERNEL=$(uname -r)
+if [ -z "$KERNEL" ]; then
+  echo "无法检测内核版本" >"${TRIM_TEMP_LOGFILE}"
+  exit 1
+fi
+
+exit 0

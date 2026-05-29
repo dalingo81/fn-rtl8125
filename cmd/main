@@ -1,0 +1,78 @@
+#!/bin/bash
+# cmd/main - 启动/停止/状态检查 (Python 版)
+
+LOG_FILE="${TRIM_PKGVAR}/info.log"
+PID_FILE="${TRIM_PKGVAR}/app.pid"
+PORT=${TRIM_SERVICE_PORT:-5300}
+
+PYTHON_BIN="/usr/bin/python3"
+CMD="${PYTHON_BIN} ${TRIM_APPDEST}/server/server.py"
+
+log_msg() {
+  echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "${LOG_FILE}"
+}
+
+kill_old() {
+  if [ -f "${PID_FILE}" ]; then
+    local old_pid=$(head -n 1 "${PID_FILE}")
+    if [ -n "${old_pid}" ] && kill -0 "${old_pid}" 2>/dev/null; then
+      kill -TERM "${old_pid}" 2>/dev/null || true
+      sleep 1
+      kill -KILL "${old_pid}" 2>/dev/null || true
+    fi
+  fi
+  local pids=$(ps aux | grep '[s]erver.py' | awk '{print $2}')
+  for pid in ${pids}; do
+    kill -TERM "${pid}" 2>/dev/null || true
+    sleep 0.5
+  done
+  sleep 1
+  rm -f "${PID_FILE}"
+}
+
+start_process() {
+  if status; then
+    log_msg "Already running"
+    return 0
+  fi
+  kill_old
+  log_msg "Starting server with: ${CMD}"
+  nohup ${CMD} >> "${LOG_FILE}" 2>&1 &
+  printf "%s" "$!" > "${PID_FILE}"
+  for i in $(seq 1 15); do
+    if bash -c "echo > /dev/tcp/127.0.0.1/${PORT}" 2>/dev/null; then
+      log_msg "Server ready on port ${PORT}"
+      return 0
+    fi
+    sleep 1
+  done
+  log_msg "Server failed to start on port ${PORT}"
+  return 1
+}
+
+stop_process() {
+  log_msg "Stopping server..."
+  kill_old
+  return 0
+}
+
+status() {
+  [ -f "${PID_FILE}" ] && pid=$(head -n 1 "${PID_FILE}") && kill -0 "${pid}" 2>/dev/null && return 0
+  bash -c "echo > /dev/tcp/127.0.0.1/${PORT}" 2>/dev/null && return 0
+  return 1
+}
+
+case $1 in
+  start)
+    start_process
+    ;;
+  stop)
+    stop_process
+    ;;
+  status)
+    if status; then exit 0; else exit 3; fi
+    ;;
+  *)
+    exit 1
+    ;;
+esac

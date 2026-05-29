@@ -1,0 +1,16 @@
+{
+  ".url": {
+    "fn-r8125.Application": {
+      "title": "RTL8125 驱动管理",
+      "icon": "images/icon_{0}.png",
+      "type": "iframe",
+      "protocol": "",
+      "url": "/app/r8125/",
+      "allUsers": false,
+      "control": {
+        "accessPerm": "readonly",
+        "fullUrlPerm": "readonly"
+      }
+    }
+  }
+}

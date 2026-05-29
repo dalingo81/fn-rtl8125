@@ -1,0 +1,14 @@
+[
+  {
+    "stepTitle": "确认卸载",
+    "items": [
+      { "type": "radio", "field": "wizard_remove_driver", "label": "是否同时移除已安装的 r8125 驱动模块？",
+        "initValue": "keep",
+        "options": [
+          { "label": "保留驱动（仅移除应用）", "value": "keep" },
+          { "label": "移除驱动和配置文件", "value": "remove" }
+        ]
+      }
+    ]
+  }
+]

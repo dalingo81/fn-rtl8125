@@ -1,0 +1,10 @@
+#!/bin/bash
+### This script is called after the user installs the application.
+# 安装后：设置权限
+
+chmod +x "${TRIM_APPDEST}/ui/proxy.cgi" 2>/dev/null || true
+
+# 删除旧的 nodejs 服务文件（如果存在）
+rm -f "${TRIM_APPDEST}/server/server.js" 2>/dev/null || true
+
+exit 0

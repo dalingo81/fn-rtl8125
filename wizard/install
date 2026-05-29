@@ -1,0 +1,8 @@
+[
+  {
+    "stepTitle": "RTL8125 驱动管理",
+    "items": [
+      { "type": "tips", "helpText": "该应用用于在飞牛NAS上安装和管理 RTL8125 2.5G 网卡驱动。<br/><br/><strong>功能包括：</strong><br/>• 安装编译环境与驱动<br/>• 验证驱动安装状态<br/>• 网卡节能优化设置<br/><br/><strong>注意：</strong>需要 root 权限运行，安装前请确保网络连接正常。" }
+    ]
+  }
+]

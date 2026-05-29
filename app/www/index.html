@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RTL8125 网卡驱动管理</title>
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div id="app">
+  <!-- 侧边导航 -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text">RTL8125<br><small>驱动管理</small></div>
+    </div>
+    <nav class="nav">
+      <button class="nav-btn active" data-page="install" onclick="switchPage('install')">
+        <span class="nav-icon">📦</span>
+        <span class="nav-label">安装驱动</span>
+      </button>
+      <button class="nav-btn" data-page="verify" onclick="switchPage('verify')">
+        <span class="nav-icon">✅</span>
+        <span class="nav-label">验证安装</span>
+      </button>
+      <button class="nav-btn" data-page="tuning" onclick="switchPage('tuning')">
+        <span class="nav-icon">⚙️</span>
+        <span class="nav-label">节能优化</span>
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <span class="status-dot" id="statusDot"></span>
+      <span id="statusText">就绪</span>
+    </div>
+  </aside>
+
+  <!-- 主内容区 -->
+  <main class="main">
+    <!-- ========== 安装驱动页面 ========== -->
+    <section id="page-install" class="page active">
+      <h1>📦 安装 RTL8125 驱动</h1>
+      <p class="page-desc">在飞牛NAS (Debian) 系统上安装 RTL8125 2.5G 网卡驱动，包括编译环境、驱动编译安装、持久化配置。</p>
+
+      <div class="step-cards">
+        <div class="step-card" data-step="1">
+          <div class="step-header">
+            <span class="step-num">第一步</span>
+            <span class="step-title">安装编译环境</span>
+            <span class="step-badge" id="badge-step1">待执行</span>
+          </div>
+          <p class="step-desc">安装 build-essential、DKMS、内核头文件等编译工具链</p>
+          <button class="btn btn-primary" onclick="runStep('step1')" id="btn-step1">
+            <span class="btn-icon">▶</span> 执行
+          </button>
+        </div>
+
+        <div class="step-card" data-step="2">
+          <div class="step-header">
+            <span class="step-num">第二步</span>
+            <span class="step-title">下载 &amp; 编译驱动</span>
+            <span class="step-badge" id="badge-step2">待执行</span>
+          </div>
+          <p class="step-desc">从社区 DKMS 仓库或 Realtek 官方下载源码，编译安装 r8125 驱动</p>
+          <button class="btn btn-primary" onclick="runStep('step2')" id="btn-step2">
+            <span class="btn-icon">▶</span> 执行
+          </button>
+        </div>
+
+        <div class="step-card" data-step="3">
+          <div class="step-header">
+            <span class="step-num">第三步</span>
+            <span class="step-title">持久化配置</span>
+            <span class="step-badge" id="badge-step3">待执行</span>
+          </div>
+          <p class="step-desc">屏蔽 r8169 驱动冲突、更新 initramfs、设置自动加载</p>
+          <button class="btn btn-primary" onclick="runStep('step3')" id="btn-step3">
+            <span class="btn-icon">▶</span> 执行
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 验证页面 ========== -->
+    <section id="page-verify" class="page">
+      <h1>✅ 验证驱动安装</h1>
+      <p class="page-desc">检查 RTL8125 驱动是否安装成功，包括 PCI 识别、内核模块、驱动绑定、连接速度等。</p>
+
+      <div class="verify-card">
+        <div class="verify-header">
+          <span class="verify-icon">🔍</span>
+          <span class="verify-title">驱动安装验证</span>
+        </div>
+        <p class="verify-desc">执行全面的驱动验证检查，包括：</p>
+        <ul class="verify-list">
+          <li>PCI 以太网控制器识别</li>
+          <li>r8125 / r8169 内核模块状态</li>
+          <li>PCI 驱动绑定详情</li>
+          <li>网络连接速度检测</li>
+          <li>驱动版本信息</li>
+        </ul>
+        <button class="btn btn-primary btn-lg" onclick="runStep('step4')" id="btn-step4">
+          <span class="btn-icon">▶</span> 开始验证
+        </button>
+      </div>
+    </section>
+
+    <!-- ========== 节能优化页面 ========== -->
+    <section id="page-tuning" class="page">
+      <h1>⚙️ 网络性能优化</h1>
+      <p class="page-desc">关闭 RTL8125 网卡的节能特性（EEE、WOL 等），降低网络延迟，提升性能。</p>
+
+      <div class="tuning-card">
+        <div class="tuning-header">
+          <div class="tuning-icon">🔄</div>
+          <div>
+            <div class="tuning-title">网卡节能设置</div>
+            <div class="tuning-desc">选择要优化的网卡接口，关闭节能以太网(EEE)、网络唤醒(WOL)</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="iface-select" class="form-label">选择网卡接口</label>
+          <div class="iface-select-wrap">
+            <select id="iface-select" class="form-select" disabled>
+              <option value="">正在检测网卡...</option>
+            </select>
+            <button class="btn btn-secondary" onclick="refreshInterfaces()" title="刷新网卡列表">🔄</button>
+          </div>
+        </div>
+
+        <div class="opt-info">
+          <div class="opt-item">
+            <div class="opt-icon">🔌</div>
+            <div>
+              <strong>关闭 EEE</strong><br>
+              <small>节能以太网会引入额外延迟，关闭后延迟更低</small>
+            </div>
+          </div>
+          <div class="opt-item">
+            <div class="opt-icon">💤</div>
+            <div>
+              <strong>关闭 WOL</strong><br>
+              <small>网络唤醒在 NAS 场景中极少使用，关闭减少功耗</small>
+            </div>
+          </div>
+          <div class="opt-item">
+            <div class="opt-icon">📊</div>
+            <div>
+              <strong>增大 Ring Buffer</strong><br>
+              <small>RX/TX 缓冲设为 4096，提高高吞吐性能</small>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary btn-lg" onclick="runEnergySaving()" id="btn-step5">
+          <span class="btn-icon">▶</span> 应用优化
+        </button>
+      </div>
+    </section>
+
+    <!-- ========== 输出终端 ========== -->
+    <div class="output-panel" id="outputPanel" style="display:none;">
+      <div class="output-header">
+        <span class="output-title">📟 执行输出</span>
+        <div class="output-actions">
+          <button class="btn btn-sm" onclick="clearOutput()">🧹 清空</button>
+          <button class="btn btn-sm btn-close" onclick="toggleOutput()">✕</button>
+        </div>
+      </div>
+      <pre class="output-content" id="outputContent"><span class="prompt">$</span> 就绪，等待执行...</pre>
+    </div>
+  </main>
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
