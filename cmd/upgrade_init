@@ -1,0 +1,8 @@
+#!/bin/bash
+### fn-rtl8125 升级前准备
+
+# 停止旧的服务进程
+echo "停止旧的服务..."
+${TRIM_APPDEST}/cmd/main stop 2>/dev/null || true
+
+exit 0

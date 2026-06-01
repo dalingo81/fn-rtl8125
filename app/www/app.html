@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RTL8125 网卡驱动管理</title>
+    <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <header class="topbar">
+        <div class="topbar-left">
+            <h2>🖧 RTL8125 驱动管理</h2>
+        </div>
+        <div class="topbar-right">
+            <span class="user-badge" id="userBadge"></span>
+            <button class="btn btn-sm btn-logout" onclick="doLogout()">退出登录</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- 状态概览 -->
+        <div class="card status-card">
+            <div class="card-header">
+                <h3>📊 驱动状态</h3>
+                <span class="last-refresh" id="lastRefresh">-</span>
+            </div>
+            <div class="status-grid" id="statusGrid">
+                <div class="status-item">
+                    <span class="label">DKMS 状态</span>
+                    <span class="value loading" id="sDkms">检测中...</span>
+                </div>
+                <div class="status-item">
+                    <span class="label">模块加载</span>
+                    <span class="value loading" id="sLoaded">检测中...</span>
+                </div>
+                <div class="status-item">
+                    <span class="label">黑名单 r8169</span>
+                    <span class="value loading" id="sBlacklist">检测中...</span>
+                </div>
+                <div class="status-item">
+                    <span class="label">PCI 设备</span>
+                    <span class="value loading" id="sPci">检测中...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="card action-card">
+            <div class="card-header">
+                <h3>⚡ 操作面板</h3>
+            </div>
+            <div class="action-group">
+                <button class="btn btn-primary btn-action" onclick="doInstall()" id="btnInstall">📥 安装驱动</button>
+                <button class="btn btn-warning btn-action" onclick="doUninstall()" id="btnUninstall">🗑️ 卸载驱动</button>
+                <button class="btn btn-success btn-action" onclick="doOptimize()" id="btnOptimize">🚀 性能优化</button>
+                <button class="btn btn-danger btn-action" onclick="doReboot()" id="btnReboot">🔄 重启系统</button>
+                <button class="btn btn-sm btn-outline" onclick="refreshStatus()">🔄 刷新状态</button>
+            </div>
+        </div>
+
+        <!-- 日志面板 -->
+        <div class="card log-card" id="logCard" style="display:none">
+            <div class="card-header">
+                <h3 id="logTitle">📜 执行日志</h3>
+                <button class="btn btn-sm" onclick="closeLog()">✕</button>
+            </div>
+            <div class="log-content" id="logContent"></div>
+        </div>
+
+        <!-- 网卡详情 -->
+        <div class="card" id="detailCard" style="display:none">
+            <div class="card-header">
+                <h3>🔍 网卡详细信息</h3>
+                <button class="btn btn-sm" onclick="document.getElementById('detailCard').style.display='none'">✕</button>
+            </div>
+            <pre class="detail-content" id="detailContent"></pre>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

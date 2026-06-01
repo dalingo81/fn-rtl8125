@@ -1,0 +1,18 @@
+{
+  ".url": {
+    "fn-rtl8125.Application": {
+      "title": "RTL8125网卡驱动管理",
+      "desc": "安装和管理RTL8125 2.5GbE网卡驱动",
+      "icon": "images/icon_{0}.png",
+      "type": "url",
+      "protocol": "http",
+      "port": "${wizard_port}",
+      "url": "/",
+      "allUsers": true,
+      "control": {
+        "accessPerm": "readonly",
+        "fullUrlPerm": "readonly"
+      }
+    }
+  }
+}

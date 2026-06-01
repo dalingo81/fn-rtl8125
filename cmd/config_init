@@ -1,0 +1,15 @@
+#!/bin/bash
+### fn-rtl8125 配置变更前 — 更新端口配置文件
+
+CMD_DIR="$(cd "$(dirname "$0")" && pwd -P)"
+APP_ROOT="$(dirname "$CMD_DIR")"
+: "${TRIM_PKGETC:=${APP_ROOT}/etc}"
+
+# 优先取 wizard_port（用户在配置向导输入的端口），再回退到 TRIM_SERVICE_PORT
+PORT="${wizard_port:-${TRIM_SERVICE_PORT:-5303}}"
+PORT_FILE="${TRIM_PKGETC}/port.conf"
+echo "PORT=${PORT}" > "$PORT_FILE"
+chmod 644 "$PORT_FILE"
+
+echo "配置变更 - 端口: ${PORT}"
+exit 0

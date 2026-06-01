@@ -1,0 +1,26 @@
+#!/bin/bash
+### fn-rtl8125 安装前准备
+### 安装编译依赖
+
+log_msg() {
+  echo "$(date '+%Y-%m-%d %H:%M:%S') - $1"
+}
+
+log_msg "开始安装 rtl8125 驱动管理..."
+
+# 更新 apt 源并安装依赖
+apt-get update -qq 2>/dev/null
+if [ $? -ne 0 ]; then
+  echo "apt update 失败，请检查网络连接" > "$TRIM_TEMP_LOGFILE"
+  exit 1
+fi
+
+apt-get install -y -qq dkms build-essential linux-headers-$(uname -r) git ethtool 2>&1
+if [ $? -ne 0 ]; then
+  echo "依赖安装失败" > "$TRIM_TEMP_LOGFILE"
+  exit 1
+fi
+
+log_msg "依赖安装完成"
+
+exit 0

@@ -1,0 +1,4 @@
+*.fpk
+__pycache__/
+*.pyc
+.gitkeep

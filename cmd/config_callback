@@ -1,0 +1,14 @@
+#!/bin/bash
+### fn-rtl8125 配置变更后 — 重启服务
+
+CMD_DIR="$(cd "$(dirname "$0")" && pwd -P)"
+APP_ROOT="$(dirname "$CMD_DIR")"
+: "${TRIM_APPDEST:=${APP_ROOT}/target}"
+[ ! -d "$TRIM_APPDEST" ] && TRIM_APPDEST="$APP_ROOT"
+
+echo "配置已更新，重启服务..."
+${CMD_DIR}/main stop 2>/dev/null
+sleep 1
+${CMD_DIR}/main start 2>/dev/null
+
+exit 0

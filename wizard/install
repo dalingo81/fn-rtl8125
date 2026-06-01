@@ -1,0 +1,31 @@
+[
+  {
+    "stepTitle": "端口配置",
+    "items": [
+      {
+        "type": "tips",
+        "helpText": "RTL8125 网卡驱动管理需要设置一个 Web 管理端口。默认端口 5303，如果需要可自行修改。"
+      },
+      {
+        "type": "text",
+        "field": "wizard_port",
+        "label": "管理端口",
+        "initValue": "5303",
+        "required": true,
+        "message": "请输入端口号",
+        "min": 1024,
+        "max": 65535,
+        "pattern": "^[0-9]{4,5}$"
+      }
+    ]
+  },
+  {
+    "stepTitle": "确认安装",
+    "items": [
+      {
+        "type": "tips",
+        "helpText": "即将安装 RTL8125 网卡驱动管理工具。<br/><br/><strong>注意事项：</strong><br/>• 需要 root 权限以管理内核驱动<br/>• 登录页面使用飞牛NAS本地系统账号登录<br/>• 安装驱动后需要重启系统才能生效<br/><br/>请确保：<br/>✅ 系统已安装 RTL8125 网卡<br/>✅ 系统可正常访问网络"
+      }
+    ]
+  }
+]

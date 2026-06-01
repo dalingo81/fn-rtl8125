@@ -1,0 +1,5 @@
+#!/bin/bash
+### fn-rtl8125 升级后处理
+
+echo "升级完成"
+exit 0

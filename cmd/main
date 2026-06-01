@@ -1,0 +1,131 @@
+#!/bin/bash
+# RTL8125 驱动管理 - 进程管理
+
+# 自动确定路径（兼容应用中心调用和手动调用）
+CMD_DIR="$(cd "$(dirname "$0")" && pwd -P)"
+APP_ROOT="$(dirname "$CMD_DIR")"
+: "${TRIM_APPDEST:=${APP_ROOT}/target}"
+: "${TRIM_PKGVAR:=${APP_ROOT}/var}"
+: "${TRIM_PKGETC:=${APP_ROOT}/etc}"
+[ ! -d "$TRIM_APPDEST" ] && TRIM_APPDEST="$APP_ROOT"
+
+LOG_FILE="${TRIM_PKGVAR}/info.log"
+PID_FILE="${TRIM_PKGVAR}/app.pid"
+
+mkdir -p "${TRIM_PKGVAR}" "${TRIM_PKGETC}" 2>/dev/null
+
+log_msg() {
+  echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "${LOG_FILE}"
+}
+
+# 查找 Python 3 路径
+find_python() {
+  for py in python3 python; do
+    if command -v "$py" >/dev/null 2>&1; then
+      echo "$py"
+      return 0
+    fi
+  done
+  # 尝试系统预装的 Python
+  for p in /usr/bin/python3 /usr/local/bin/python3; do
+    if [ -x "$p" ]; then
+      echo "$p"
+      return 0
+    fi
+  done
+  return 1
+}
+
+kill_old() {
+  # 从 PID 文件杀
+  if [ -f "${PID_FILE}" ]; then
+    local old_pid=$(head -n 1 "${PID_FILE}")
+    if [ -n "${old_pid}" ] && kill -0 "${old_pid}" 2>/dev/null; then
+      kill -TERM "${old_pid}" 2>/dev/null || true
+      sleep 1
+      kill -KILL "${old_pid}" 2>/dev/null || true
+    fi
+  fi
+  # 扫描进程
+  local pids=$(ps aux | grep '[s]erver.py' | awk '{print $2}')
+  for pid in ${pids}; do
+    kill -TERM "${pid}" 2>/dev/null || true
+    sleep 0.5
+    kill -KILL "${pid}" 2>/dev/null || true
+  done
+  sleep 1
+  rm -f "${PID_FILE}"
+  return 0
+}
+
+start_process() {
+  kill_old
+  
+  PYTHON=$(find_python)
+  if [ -z "$PYTHON" ]; then
+    echo "未找到 Python 运行环境" > "$TRIM_TEMP_LOGFILE"
+    log_msg "ERROR: Python not found"
+    return 1
+  fi
+  
+  log_msg "Starting server with $PYTHON"
+  
+  # 端口优先级：wizard_port > port.conf > TRIM_SERVICE_PORT > 5303
+  PORT_FILE="${TRIM_PKGETC}/port.conf"
+  SERVICE_PORT="${wizard_port:-}"
+  if [ -z "$SERVICE_PORT" ] && [ -f "$PORT_FILE" ]; then
+    SERVICE_PORT=$(grep '^PORT=' "$PORT_FILE" | cut -d= -f2)
+  fi
+  if [ -z "$SERVICE_PORT" ]; then
+    SERVICE_PORT="${TRIM_SERVICE_PORT:-5303}"
+  fi
+  
+  # 启动服务
+  cd "${TRIM_APPDEST}/server"
+  TRIM_PKGETC="${TRIM_PKGETC}" TRIM_PKGVAR="${TRIM_PKGVAR}" TRIM_SERVICE_PORT="${SERVICE_PORT}" \
+    nohup $PYTHON server.py >> "${LOG_FILE}" 2>&1 &
+  
+  printf "%s" "$!" > "${PID_FILE}"
+  
+  log_msg "Waiting for service on port ${SERVICE_PORT}..."
+  
+  for i in $(seq 1 30); do
+    if bash -c "echo > /dev/tcp/127.0.0.1/${SERVICE_PORT}" 2>/dev/null; then
+      log_msg "Service ready on port ${SERVICE_PORT}"
+      return 0
+    fi
+    sleep 1
+  done
+  
+  log_msg "Service failed to start on port ${SERVICE_PORT}"
+  return 1
+}
+
+stop_process() {
+  kill_old
+  log_msg "Process stopped"
+  return 0
+}
+
+status_process() {
+  [ -f "${PID_FILE}" ] && pid=$(head -n 1 "${PID_FILE}") && kill -0 "${pid}" 2>/dev/null && return 0
+  # 备用检查：进程扫描
+  ps aux | grep -q '[s]erver.py ' && return 0
+  return 1
+}
+
+case $1 in
+  start)
+    if start_process; then exit 0; else exit 1; fi
+    ;;
+  stop)
+    stop_process
+    exit 0
+    ;;
+  status)
+    if status_process; then exit 0; else exit 3; fi
+    ;;
+  *)
+    exit 1
+    ;;
+esac

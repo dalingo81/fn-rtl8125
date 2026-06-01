@@ -1,0 +1,25 @@
+#!/bin/bash
+### fn-rtl8125 安装后处理
+
+# 自动确定路径
+CMD_DIR="$(cd "$(dirname "$0")" && pwd -P)"
+APP_ROOT="$(dirname "$CMD_DIR")"
+: "${TRIM_APPDEST:=${APP_ROOT}/target}"
+: "${TRIM_PKGVAR:=${APP_ROOT}/var}"
+: "${TRIM_PKGETC:=${APP_ROOT}/etc}"
+[ ! -d "$TRIM_APPDEST" ] && TRIM_APPDEST="$APP_ROOT"
+
+# 确保 server 脚本可执行
+chmod +x "${TRIM_APPDEST}/server/"*.py 2>/dev/null || true
+
+# 创建数据目录
+mkdir -p "${TRIM_PKGVAR}" "${TRIM_PKGETC}" 2>/dev/null
+
+# 优先取 wizard_port（用户在安装向导输入的端口），再回退到 TRIM_SERVICE_PORT
+PORT="${wizard_port:-${TRIM_SERVICE_PORT:-5303}}"
+PORT_FILE="${TRIM_PKGETC}/port.conf"
+echo "PORT=${PORT}" > "$PORT_FILE"
+chmod 644 "$PORT_FILE"
+
+echo "fn-rtl8125 安装完成，端口: ${PORT}"
+exit 0
